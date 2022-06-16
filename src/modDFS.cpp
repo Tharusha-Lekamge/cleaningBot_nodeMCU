@@ -1,5 +1,9 @@
 #include "modDFS.h"
 
+FullMapGen *newMapperObject = new FullMapGen;
+Driver *dfsDriver = new Driver;
+Node *obstacleNode1 = new Node;
+
 void printNodeVec(Node (*nodeArray)[11])
 {
   for (int i = 0; i < 11; i++)
@@ -53,16 +57,18 @@ bool isNextChildOfCurrent(Node *nextNode, Node *curNode)
   }
 }
 
-void addRetracePath(Node *destinationNode, Node *curNode, std::vector<Node *> *pathList)
+void addRetracePath(Node *destinationNode, Node *curNode, std::vector<Node *> *pathList, int *curDir)
 {
   if (isNextChildOfCurrent(destinationNode, curNode))
   {
+    moveToNextNodePhysically(curNode, destinationNode, dfsDriver, curDir);
     return;
   }
   else
   {
     pathList->push_back(curNode->parent);
-    addRetracePath(destinationNode, curNode->parent, pathList);
+    moveToNextNodePhysically(curNode, curNode->parent, dfsDriver, curDir);
+    addRetracePath(destinationNode, curNode->parent, pathList, curDir);
   }
 }
 
@@ -102,12 +108,10 @@ void printStack(std::vector<Node *> stackv)
   std::cout << "\n";
 }
 
-void modDFS(Node *startNode, std::vector<Node *> stackVec, Node **visitedList, int visitedCounter, int stackCounter, std::vector<Node *> *pathList)
+void modDFS(Node *startNode, std::vector<Node *> stackVec, Node **visitedList, int visitedCounter, int stackCounter, std::vector<Node *> *pathList, int *curDir)
 {
-  // startNode is the name of the current node
-
-  // std::cout<<"Inside DFS "<<iterationNo<<"\n";
-  //  Add X to visited and increment counter
+  //  startNode is the name of the current node
+  //  Add startNode to visited and increment counter
 
   // Init pathList
   startNode->visited = true;
@@ -117,9 +121,7 @@ void modDFS(Node *startNode, std::vector<Node *> stackVec, Node **visitedList, i
   visitedCounter++;
 
   // Scanning for Obstacles
-  // relMapper.updateMap();
-  // fullMapper.updateMap();
-  // Arr_to_graph();
+  newMapperObject->updateNodeMap(startNode, curDir, obstacleNode1);
 
   // Recording the current location of the node
   Node *nextNode;
@@ -226,7 +228,125 @@ void modDFS(Node *startNode, std::vector<Node *> stackVec, Node **visitedList, i
     nextNode = stackVec.back();
     stackVec.pop_back();
 
-    addRetracePath(nextNode, startNode, pathList);
-    modDFS(nextNode, stackVec, visitedList, visitedCounter, stackCounter, pathList);
+    addRetracePath(nextNode, startNode, pathList, curDir);
+    modDFS(nextNode, stackVec, visitedList, visitedCounter, stackCounter, pathList, curDir);
+  }
+}
+
+void moveToNextNodePhysically(Node *fromNode, Node *toNode, Driver *car, int *curDir)
+{
+  // Find turning direction
+  int fromRow = fromNode->row;
+  int fromCol = fromNode->col;
+  int toRow = toNode->row;
+  int toCol = toNode->col;
+
+  // Check the axis of motion
+  // No change in row value - Vertical motion
+  if ((fromRow - toRow) == 0)
+  {
+    if (fromCol > toCol) // Need a west motion
+    {
+      switch (*curDir)
+      {
+      case 0: // Facing north
+        car->left();
+        car->forward();
+        break;
+      case 1: // Facing east
+        car->left();
+        car->left();
+        car->forward();
+        break;
+      case 2: // Facing south
+        car->right();
+        car->forward();
+        break;
+      case 3: // Facing west
+        car->forward();
+        break;
+      default:
+        break;
+      }
+      *curDir = 3;
+    }
+    else // Needs an east motion
+    {
+      switch (*curDir)
+      {
+      case 0: // Facing north
+        car->right();
+        car->forward();
+        break;
+      case 1: // Facing east
+        car->forward();
+        break;
+      case 2: // Facing south
+        car->left();
+        car->forward();
+        break;
+      case 3: // Facing west
+        car->left();
+        car->left();
+        car->forward();
+        break;
+      default:
+        break;
+      }
+      *curDir = 1;
+    }
+  }
+  else // Needs a vertical motion
+  {
+    if (fromRow > toRow) // Needs a north motion
+    {
+      switch (*curDir)
+      {
+      case 0: // Facing north
+        car->forward();
+        break;
+      case 1: // Facing east
+        car->left();
+        car->forward();
+        break;
+      case 2: // Facing south
+        car->left();
+        car->left();
+        car->forward();
+        break;
+      case 3: // Facing west
+        car->right();
+        car->forward();
+        break;
+      default:
+        break;
+      }
+      *curDir = 0;
+    }
+    else // Needs an west motion
+    {
+      switch (*curDir)
+      {
+      case 0: // Facing north
+        car->left();
+        car->left();
+        car->forward();
+        break;
+      case 1: // Facing east
+        car->right();
+        car->forward();
+        break;
+      case 2: // Facing south
+        car->forward();
+        break;
+      case 3: // Facing west
+        car->left();
+        car->forward();
+        break;
+      default:
+        break;
+      }
+      *curDir = 2;
+    }
   }
 }

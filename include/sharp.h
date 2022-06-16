@@ -19,10 +19,11 @@ private:
     // constants taken after interpolation to get voltage -> distance conversion
     float k1 = 16.7647563;
     float k2 = -0.85803107;
-    int sharpPin;
+    int sharpPin = A0;
 
 public:
     Sharp();
     Sharp(uint8_t sharpPin);
     float getDistance();
+    bool isNextBlockObstacle();
 };

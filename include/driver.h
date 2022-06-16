@@ -20,9 +20,24 @@ class Driver
 private:
 public:
     void followPath(int *path);
+    /**
+     * @brief Moves forward by one block. Approximately 7 inches
+     */
     void forward();
+    /**
+     * @brief Rotates the robot by 180 degrees. No displacement of the robot
+     */
     void backward();
+    /**
+     * @brief Rotates the robot by 90 degrees anticlockwise. No displacement of the robot
+     */
     void left();
+    /**
+     * @brief Rotates the robot by 90 degrees clockwise. No displacement of the robot
+     */
     void right();
+    /**
+     * @brief Stop all motors of the robot
+     */
     void stop();
 };

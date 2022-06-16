@@ -7,7 +7,7 @@ Sharp::Sharp()
     sharpSensorVal = 0;
     sum = 0;
     distance = 0;
-    this->sharpPin = 3;
+    this->sharpPin = A0;
 }
 
 Sharp::Sharp(uint8_t sharpPin)
@@ -35,3 +35,20 @@ float Sharp::getDistance()
     // distance = (sharpSensorVolt * (1 / k1)) * *(1 / k2);
     return (this->distance);
 };
+
+/* Block size is considered to be 7 inches
+ * check if there is an obstacle in the range 7.5 inches from the front of the robot
+ * distance is measured in cm from the sharp
+ */
+bool Sharp::isNextBlockObstacle()
+{
+    int distance = getDistance();
+    if (distance < 19)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}

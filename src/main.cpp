@@ -23,6 +23,8 @@ const int TIME_PER_REV = 100;
 
 // 4.1 State variables for current location
 int currPos[2] = {5, 5};
+// Directions - 0 - front, 1 - right, 2 - back, 3 - left
+// clockwise rotation. Directions are absolute
 int curDir = 0;
 
 Node nodeArray[11][11];
@@ -79,12 +81,13 @@ void setup()
   // bool mapInit = relMapper.initArray(relMapIn);
   // relMapper.updateMap();
 
-  // fullMap.initData_array(mapWithObs);
+  fullMap.initData_array(fullMapTest);
   // fullMap.updateMap_arr(currPos, relMapIn);
 
   // Init Node array
 #include "arr_to_graph.h"
 
+  fullMap.updateNodeMap(&nodeArray[10][5], &curDir, obstacleNode);
   // Find initial path for a map with no obstacles
 }
 
@@ -104,6 +107,6 @@ void loop()
   06.
   */
   Node *startNode = &nodeArray[10][5];
-  modDFS(startNode, stackVec, visitedList, 0, 0, &pathList);
+  modDFS(startNode, stackVec, visitedList, 0, 0, &pathList, &curDir);
   delay(10000);
 }
