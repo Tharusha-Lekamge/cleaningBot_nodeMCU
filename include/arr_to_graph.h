@@ -91,8 +91,8 @@ for (int rows = 0; rows < 11; rows++)
       }
       else if (rows == 10) // No node to back
       {
-        Node frontNode = nodeArray[rows + 1][cols];
-        if (frontNode.state == 2) // If the backNode is an obstacle
+        Node frontNode = nodeArray[rows - 1][cols];
+        if (frontNode.state == 2) // If the frontNode is an obstacle
         {
           fr = nullptr;
         }

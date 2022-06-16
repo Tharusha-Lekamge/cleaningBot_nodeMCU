@@ -3,8 +3,9 @@
 RelativeMapGen::RelativeMapGen(int (*relMapIn_arr)[11])
 {
     this->relMap_arr = relMapIn_arr;
-    this->sharpMountServo.attach(10);
+    this->sharpMountServo.attach(1);
 }
+
 bool RelativeMapGen::initArray(int (*relMapIn_arr)[11])
 {
     this->relMap_arr = relMapIn_arr;
@@ -36,7 +37,7 @@ void RelativeMapGen::updateMap()
     // int distance;
     {
         Servo sharpMountServo1;
-        sharpMountServo1.attach(11);
+        sharpMountServo1.attach(1);
         for (int index = 0; index < 60; index++)
         {
             sharpMountServo1.write(angles[index]);

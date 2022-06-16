@@ -10,6 +10,10 @@ struct Node
   Node *left;
   Node *right;
 
+  // For path retracing in DFS algorithm
+  Node *parent;
+  bool visited = false;
+
   int col;
   int row;
   int state;

@@ -1,78 +1,88 @@
 // Arduino Libraries
 #include <Servo.h>
 #include <Arduino.h>
+#include <vector>
 
 // Required Files
 #include "fullMapGen.h"
 #include "relativeMapGen.h"
-#include "mapper.h"
+#include "node.h"
 #include "driver.h"
+#include "modDFS.h"
 
 // DEFINITIONS
-
-// 1.1 Motor pins
-#define ENB_M1 9
-#define ENB_M2 10
-
-// Left Motor
-#define IN1 2
-#define IN2 3
-
-// Right Motor
-#define IN3 4
-#define IN4 5
-#define SERVO_PIN 11
 
 // 1.2 Motor Params
 #define speed 5
 const int TIME_PER_REV = 100;
 
 // 2.1 IR pins - A0
-#define SHARP_PIN 14
 
 // 3.1 Map Inits
 #include "mapArrays.h"
+
+// 4.1 State variables for current location
 int currPos[2] = {5, 5};
+int curDir = 0;
+
 Node nodeArray[11][11];
 
-//  Path Finding variables
+// Path finding variables
+Node *outOfBoundsNode = new Node;
+Node *obstacleNode = new Node;
+
+// Maximum number of nodes is 121
+Node **stack = new Node *[128];
+std::vector<Node *> stackVec;
+Node **visitedList = new Node *[128];
+std::vector<Node *> pathList;
 /*  Set the following variable to true when the robot
  *  completed cleaning the room */
-bool isComplete;
+// bool isComplete;
 
 // Sharp and Servo objects - Not used
 // Servo sharpMountServoInit;
 
 // Mapper objects
 FullMapGen fullMap;
-RelativeMapGen relMapper(relMapIn);
+// RelativeMapGen relMapper(relMapIn);
+Driver testDriver;
+
+Servo newServo;
 
 void setup()
 {
   // SETTING PINS
   // Motor pins
   {
-    pinMode(ENB_M1, OUTPUT);
-    pinMode(ENB_M2, OUTPUT);
-    pinMode(IN1, OUTPUT);
-    pinMode(IN2, OUTPUT);
-    pinMode(IN3, OUTPUT);
-    pinMode(IN4, OUTPUT);
-    // Servo and IR pins
-    pinMode(SERVO_PIN, OUTPUT);
-    pinMode(SHARP_PIN, INPUT);
+    pinMode(D0, OUTPUT);
+    pinMode(D1, OUTPUT);
+    pinMode(D2, OUTPUT);
+    pinMode(D3, OUTPUT);
+    // EN2
+    pinMode(D4, OUTPUT);
+    pinMode(D5, OUTPUT);
+    pinMode(D10, OUTPUT);
+
+    // put your setup code here, to run once:
+    analogWrite(D4, 36);
+    analogWrite(D5, 47);
   }
 
   // Initiate Serial for testing
   {
-    Serial.begin(9600);
+    // Serial.begin(9600);
   }
 
+  newServo.attach(D10);
   // Create mapper objects
-  fullMap.initData_array(fullMapTest);
-  fullMap.updateMap_arr(currPos, relMapIn);
+  // bool mapInit = relMapper.initArray(relMapIn);
+  // relMapper.updateMap();
 
-// Init Node array
+  // fullMap.initData_array(mapWithObs);
+  // fullMap.updateMap_arr(currPos, relMapIn);
+
+  // Init Node array
 #include "arr_to_graph.h"
 
   // Find initial path for a map with no obstacles
@@ -81,6 +91,9 @@ void setup()
 // the loop function runs over and over again forever
 void loop()
 {
+  delay(3000);
+  newServo.write(180);
+  // testDriver.forward();
 
   /*
   01. Initialize the path in setup[For a map with no obstacles]
@@ -90,4 +103,7 @@ void loop()
   05. Travel along the path.
   06.
   */
+  Node *startNode = &nodeArray[10][5];
+  modDFS(startNode, stackVec, visitedList, 0, 0, &pathList);
+  delay(10000);
 }

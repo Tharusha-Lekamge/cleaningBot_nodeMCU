@@ -7,7 +7,7 @@ Sharp::Sharp()
     sharpSensorVal = 0;
     sum = 0;
     distance = 0;
-    this->sharpPin = 14;
+    this->sharpPin = 3;
 }
 
 Sharp::Sharp(uint8_t sharpPin)
