@@ -1,4 +1,5 @@
 #pragma once
+#include <Arduino.h>
 #include "node.h"
 #include <vector>
 #include "iostream"
@@ -6,6 +7,7 @@
 #include "driver.h"
 
 void printNodeVec(Node (*nodeArray)[11]);
+
 /**
  * @brief Modified Depth First Search algorithm to solve a graph with unidentifed obstacles. The result of the function is a
  *
@@ -20,6 +22,14 @@ void printNodeVec(Node (*nodeArray)[11]);
 void modDFS(Node *startNode, std::vector<Node *> stackVec, Node **visitedList, int visitedCounter, int stackCounter, std::vector<Node *> *pathList, int *curDir);
 void printNodes(Node **nodeArray);
 bool isInVisited(Node *nodeIn, Node **visited);
+/**
+ * @brief Check if the next node is directly connected to the current node. Support function used to retrace the path
+ *
+ * @param nextNode The next node to be moved in to
+ * @param curNode Current Node
+ * @return true If the next Node is directly connected to the current node with one edge
+ * @return false If the next Node is a child of another Node
+ */
 bool isNextChildOfCurrent(Node *nextNode, Node *curNode);
 /**
  * @brief When traversing the DFS, we have to trace back early steps to get possible moves without moving through diagonals. This method also moves the robot physically to the next location.
@@ -31,6 +41,7 @@ bool isNextChildOfCurrent(Node *nextNode, Node *curNode);
  */
 void addRetracePath(Node *destinationNode, Node *curNode, std::vector<Node *> *pathList, int *curDir);
 void printPathList(std::vector<Node *> pathL);
+void printPathListInNode(std::vector<Node *> pathL);
 bool isInStack(Node *node, std::vector<Node *> *stackv);
 void printStack(std::vector<Node *> stackv);
 /**

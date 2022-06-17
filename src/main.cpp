@@ -25,7 +25,7 @@ const int TIME_PER_REV = 100;
 int currPos[2] = {5, 5};
 // Directions - 0 - front, 1 - right, 2 - back, 3 - left
 // clockwise rotation. Directions are absolute
-int curDir = 0;
+int curDir = 2;
 
 Node nodeArray[11][11];
 
@@ -50,7 +50,7 @@ FullMapGen fullMap;
 // RelativeMapGen relMapper(relMapIn);
 Driver testDriver;
 
-Servo newServo;
+// Servo newServo;
 
 void setup()
 {
@@ -73,40 +73,327 @@ void setup()
 
   // Initiate Serial for testing
   {
-    // Serial.begin(9600);
+    Serial.begin(9600);
+    Serial.println("");
   }
 
-  newServo.attach(D10);
-  // Create mapper objects
-  // bool mapInit = relMapper.initArray(relMapIn);
-  // relMapper.updateMap();
+  Serial.println("inside Setup");
+  // newServo.attach(D10);
+  //  Create mapper objects
+  //  bool mapInit = relMapper.initArray(relMapIn);
+  //  relMapper.updateMap();
 
   fullMap.initData_array(fullMapTest);
   // fullMap.updateMap_arr(currPos, relMapIn);
 
-  // Init Node array
-#include "arr_to_graph.h"
+  Serial.println("creating Node array");
+  outOfBoundsNode->row = -2;
+  outOfBoundsNode->col = -2;
 
-  fullMap.updateNodeMap(&nodeArray[10][5], &curDir, obstacleNode);
+  obstacleNode->row = -3;
+  obstacleNode->col = -3;
+  // Init Node array
+
+  std::cout << "main inside\n";
+  for (int rows = 0; rows < 11; rows++)
+  {
+    for (int cols = 0; cols < 11; cols++)
+    {
+      nodeArray[rows][cols].col = cols;
+      nodeArray[rows][cols].row = rows;
+      nodeArray[rows][cols].state = fullMapTest[rows][cols];
+    }
+  }
+
+  // Add pointers
+  for (int rows = 0; rows < 11; rows++)
+  {
+    for (int cols = 0; cols < 11; cols++)
+    {
+      // Get the address of the current node
+      // Node *curNode = &nodeArray[rows][cols];
+      Node *fr; // Front pointer
+      Node *bk; // back pointer
+      Node *r;  // Right pointer
+      Node *l;  // Left pointer
+
+      if (rows == 0) // If robot is at top
+      {
+        fr = outOfBoundsNode; // No node to front
+
+        // Check if the back node is obstacle
+        Node *backNode = &nodeArray[rows + 1][cols];
+        if (backNode->state == 2) // If the backNode is an obstacle
+        {
+          bk = obstacleNode;
+        }
+        else
+        {
+          bk = backNode;
+        }
+
+        // Test for left and right availability
+        if (cols == 0) //  If robot is at leftmost
+        {
+          Node *rightNode = &nodeArray[rows][cols + 1];
+          if (rightNode->state == 2) // If rightNode is an obstacle
+          {
+            r = obstacleNode;
+          }
+          else
+          {
+            r = rightNode;
+          }
+
+          l = outOfBoundsNode; // No node to left
+        }
+        else if (cols == 10) // If robot is at rightmost
+        {
+          r = outOfBoundsNode; // No node to right
+
+          Node *leftNode = &nodeArray[rows][cols - 1];
+          if (leftNode->state == 2) // If leftNode is an obstacle
+          {
+            l = obstacleNode;
+          }
+          else
+          {
+            l = leftNode;
+          }
+        }
+        else
+        {
+          Node *rightNode = &nodeArray[rows][cols + 1];
+          if (rightNode->state == 2) // If rightNode is an obstacle
+          {
+            r = obstacleNode;
+          }
+          else
+          {
+            r = rightNode;
+          }
+
+          Node *leftNode = &nodeArray[rows][cols - 1];
+          if (leftNode->state == 2) // If leftNode is an obstacle
+          {
+            l = obstacleNode;
+          }
+          else
+          {
+            l = leftNode;
+          }
+        }
+      }
+      else if (rows == 10) // No node to back
+      {
+        Node *frontNode = &nodeArray[rows - 1][cols];
+        if (frontNode->state == 2) // If the backNode is an obstacle
+        {
+          fr = obstacleNode;
+        }
+        else
+        {
+          fr = frontNode;
+        }
+
+        bk = outOfBoundsNode; // No node to the back
+
+        // Test for left and right availability
+        if (cols == 0) //  If robot is at leftmost
+        {
+          Node *rightNode = &nodeArray[rows][cols + 1];
+          if (rightNode->state == 2) // If rightNode is an obstacle
+          {
+            r = obstacleNode;
+          }
+          else
+          {
+            r = rightNode;
+          }
+
+          l = outOfBoundsNode; // No node to left
+        }
+        else if (cols == 10) // If robot is at rightmost
+        {
+          r = outOfBoundsNode; // No node to right
+
+          Node *leftNode = &nodeArray[rows][cols - 1];
+          if (leftNode->state == 2) // If leftNode is an obstacle
+          {
+            l = obstacleNode;
+          }
+          else
+          {
+            l = leftNode;
+          }
+        }
+        else
+        {
+          Node *rightNode = &nodeArray[rows][cols + 1];
+          if (rightNode->state == 2) // If rightNode is an obstacle
+          {
+            r = obstacleNode;
+          }
+          else
+          {
+            r = rightNode;
+          }
+
+          Node *leftNode = &nodeArray[rows][cols - 1];
+          if (leftNode->state == 2) // If leftNode is an obstacle
+          {
+            l = obstacleNode;
+          }
+          else
+          {
+            l = leftNode;
+          }
+        }
+      }
+      else // Robot is in middle row
+      {
+        Node *frontNode = &nodeArray[rows - 1][cols];
+        if (frontNode->state == 2) // If the backNode is an obstacle
+        {
+          fr = obstacleNode;
+        }
+        else
+        {
+          fr = frontNode;
+        }
+
+        Node *backNode = &nodeArray[rows + 1][cols];
+        if (backNode->state == 2) // If the backNode is an obstacle
+        {
+          bk = obstacleNode;
+        }
+        else
+        {
+          bk = backNode;
+        }
+
+        // Test for left and right availability
+        if (cols == 0) //  If robot is at leftmost
+        {
+          Node *rightNode = &nodeArray[rows][cols + 1];
+          if (rightNode->state == 2) // If rightNode is an obstacle
+          {
+            r = obstacleNode;
+          }
+          else
+          {
+            r = rightNode;
+          }
+
+          l = outOfBoundsNode; // No node to left
+        }
+        else if (cols == 10) // If robot is at rightmost
+        {
+          r = outOfBoundsNode; // No node to right
+
+          Node *leftNode = &nodeArray[rows][cols - 1];
+          if (leftNode->state == 2) // If leftNode is an obstacle
+          {
+            l = obstacleNode;
+          }
+          else
+          {
+            l = leftNode;
+          }
+        }
+        else
+        {
+          Node *rightNode = &nodeArray[rows][cols + 1];
+          if (rightNode->state == 2) // If rightNode is an obstacle
+          {
+            r = obstacleNode;
+          }
+          else
+          {
+            r = rightNode;
+          }
+
+          Node *leftNode = &nodeArray[rows][cols - 1];
+          if (leftNode->state == 2) // If leftNode is an obstacle
+          {
+            l = obstacleNode;
+          }
+          else
+          {
+            l = leftNode;
+          }
+        }
+      }
+      nodeArray[rows][cols].front = fr;
+      nodeArray[rows][cols].back = bk;
+      nodeArray[rows][cols].right = r;
+      nodeArray[rows][cols].left = l;
+    }
+  }
+
+  // (row, col) |
+  // printNodeVec(nodeArray);
+
+  for (int i = 0; i < 11; i++)
+  {
+    for (int j = 0; j < 11; j++)
+    {
+      Serial.print("(");
+      Serial.print(nodeArray[i][j].row);
+      Serial.print(",");
+      Serial.print(nodeArray[i][j].col);
+      Serial.print(",");
+      Serial.print(nodeArray[i][j].state);
+      Serial.print(")");
+      Serial.print(" | ");
+    }
+    Serial.println("");
+  }
+  Serial.println("Update Node Array");
+
+  // fullMap.updateNodeMap(&nodeArray[10][5], &curDir, obstacleNode);
+  Serial.println("running modDFS");
+  // ESP.wdtDisable();
+
+  // ESP.wdtEnable(1000);
+  Serial.println("End setup");
   // Find initial path for a map with no obstacles
+  ESP.wdtEnable(1000);
 }
 
 // the loop function runs over and over again forever
 void loop()
 {
-  delay(3000);
-  newServo.write(180);
-  // testDriver.forward();
+  Node *startNode = &nodeArray[0][0];
+  Serial.println("inside Loop");
 
-  /*
-  01. Initialize the path in setup[For a map with no obstacles]
-  02. Scan for obstacles.
-  03. Update the map.
-  04. Find a path.
-  05. Travel along the path.
-  06.
-  */
-  Node *startNode = &nodeArray[10][5];
+  Serial.println("running modDFS");
   modDFS(startNode, stackVec, visitedList, 0, 0, &pathList, &curDir);
-  delay(10000);
+  Serial.println("end ModDFS");
+  for (int i = 0; i < 11; i++)
+  {
+    for (int j = 0; j < 11; j++)
+    {
+      Serial.print("(");
+      Serial.print(nodeArray[i][j].row);
+      Serial.print(",");
+      Serial.print(nodeArray[i][j].col);
+      Serial.print(",");
+      Serial.print(nodeArray[i][j].state);
+      Serial.print(")");
+      Serial.print(" | ");
+    }
+    Serial.println("");
+  }
+  // ESP.wdtDisable();
+  // for (int i = 0; i < pathList.size(); i++)
+  // {
+  //   Serial.print("(");
+  //   Serial.print(pathList[i]->row);
+  //   Serial.print(",");
+  //   Serial.print(pathList[i]->col);
+  //   Serial.print(")");
+  //   Serial.println("");
+  // }
+  // delay(1000000);
 }

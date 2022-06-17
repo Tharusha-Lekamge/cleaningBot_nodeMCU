@@ -4,6 +4,8 @@ Ultrasonic::Ultrasonic(int trig, int echo)
 {
   this->trigPin = trig;
   this->echoPin = echo;
+  pinMode(trig, OUTPUT); // Sets the trigPin as an Output
+  pinMode(echo, INPUT);
 }
 
 bool Ultrasonic::isNextBlockObstacle()

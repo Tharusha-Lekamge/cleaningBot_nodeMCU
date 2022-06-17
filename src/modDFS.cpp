@@ -59,20 +59,34 @@ bool isNextChildOfCurrent(Node *nextNode, Node *curNode)
 
 void addRetracePath(Node *destinationNode, Node *curNode, std::vector<Node *> *pathList, int *curDir)
 {
+  ESP.wdtFeed();
   if (isNextChildOfCurrent(destinationNode, curNode))
   {
-    moveToNextNodePhysically(curNode, destinationNode, dfsDriver, curDir);
+    // moveToNextNodePhysically(curNode, destinationNode, dfsDriver, curDir);
     return;
   }
   else
   {
     pathList->push_back(curNode->parent);
-    moveToNextNodePhysically(curNode, curNode->parent, dfsDriver, curDir);
+    // moveToNextNodePhysically(curNode, curNode->parent, dfsDriver, curDir);
     addRetracePath(destinationNode, curNode->parent, pathList, curDir);
   }
 }
 
 void printPathList(std::vector<Node *> pathL)
+{
+  for (int i = 0; i < (int)pathL.size(); i++)
+  {
+    Serial.print("(");
+    Serial.print(pathL[i]->row);
+    Serial.print(", ");
+    Serial.print(pathL[i]->col);
+    Serial.print(")");
+    Serial.println("");
+  }
+}
+
+void printPathListInNode(std::vector<Node *> pathL)
 {
   for (int i = 0; i < (int)pathL.size(); i++)
   {
@@ -103,69 +117,90 @@ void printStack(std::vector<Node *> stackv)
 {
   for (int i = 0; i < (int)stackv.size(); i++)
   {
-    std::cout << "(" << stackv[i]->row << "," << stackv[i]->col << "," << stackv[i]->visited << ") ";
+    Serial.print("(");
+    Serial.print(stackv[i]->row);
+    Serial.print(",");
+    Serial.print(stackv[i]->col);
+    Serial.print(",");
+    Serial.print(stackv[i]->inStack);
+    Serial.print(") ");
   }
-  std::cout << "\n";
+  Serial.println("");
 }
 
 void modDFS(Node *startNode, std::vector<Node *> stackVec, Node **visitedList, int visitedCounter, int stackCounter, std::vector<Node *> *pathList, int *curDir)
 {
+  ESP.wdtFeed();
   //  startNode is the name of the current node
   //  Add startNode to visited and increment counter
-
+  // Serial.print("inside DFS iteration ");
+  // Serial.print(counter);
+  // Serial.println("");
   // Init pathList
+  startNode->inStack = true;
   startNode->visited = true;
   pathList->push_back(startNode);
 
   visitedList[visitedCounter] = startNode;
   visitedCounter++;
+  // Serial.println("Added to visited list");
 
   // Scanning for Obstacles
-  newMapperObject->updateNodeMap(startNode, curDir, obstacleNode1);
+
+  Serial.println("mapper init");
+  FullMapGen mapper;
+  Serial.println("trying to scan");
+  mapper.updateNodeMap(startNode, curDir, obstacleNode1);
+  // Actually add pointers
 
   // Recording the current location of the node
   Node *nextNode;
 
   // Check all for directional pointers
 
-  // RIGHT NODE
+  // // RIGHT NODE
+  // Serial.println("Checking right node");
   nextNode = startNode->right;
   // Check if the pointer actually points to the node on right
   // Not to an obstacle of ourOfBounds
   if (nextNode->col != startNode->col + 1)
   {
+    //   Serial.println("is not valid");
   }
-  else if (isInVisited(nextNode, visitedList))
+  else if (nextNode->visited == true)
   {
+    // Serial.println("is in visited");
   }
   else
   {
-    if (nextNode->visited)
+    if (nextNode->inStack)
     {
       isInStack(nextNode, &stackVec);
+      // Serial.println("removed from stack");
     }
-    nextNode->visited = true;
+    nextNode->inStack = true;
 
     stackVec.push_back(nextNode);
     nextNode->parent = startNode;
     stackCounter++;
   }
+  // Serial.println("right node checked");
 
   // FRONT NODE
   nextNode = startNode->front;
   if (nextNode->row != startNode->row - 1)
   {
   }
-  else if (isInVisited(nextNode, visitedList))
+  else if (nextNode->visited == true)
   {
   }
   else
   {
-    if (nextNode->visited)
+    if (nextNode->inStack)
     {
       isInStack(nextNode, &stackVec);
     }
-    nextNode->visited = true;
+    nextNode->inStack = true;
 
     stackVec.push_back(nextNode);
     nextNode->parent = startNode;
@@ -177,16 +212,16 @@ void modDFS(Node *startNode, std::vector<Node *> stackVec, Node **visitedList, i
   if (nextNode->row != startNode->row + 1)
   {
   }
-  else if (isInVisited(nextNode, visitedList))
+  else if (nextNode->visited == true)
   {
   }
   else
   {
-    if (nextNode->visited)
+    if (nextNode->inStack)
     {
       isInStack(nextNode, &stackVec);
     }
-    nextNode->visited = true;
+    nextNode->inStack = true;
 
     stackVec.push_back(nextNode);
     nextNode->parent = startNode;
@@ -198,16 +233,16 @@ void modDFS(Node *startNode, std::vector<Node *> stackVec, Node **visitedList, i
   if (nextNode->col != startNode->col - 1)
   {
   }
-  else if (isInVisited(nextNode, visitedList))
+  else if (nextNode->visited == true)
   {
   }
   else
   {
-    if (nextNode->visited)
+    if (nextNode->inStack)
     {
       isInStack(nextNode, &stackVec);
     }
-    nextNode->visited = true;
+    nextNode->inStack = true;
 
     stackVec.push_back(nextNode);
     nextNode->parent = startNode;
@@ -216,12 +251,15 @@ void modDFS(Node *startNode, std::vector<Node *> stackVec, Node **visitedList, i
 
   // After adding all childern
   // If all Nodes are traversed
+  // printStack(stackVec);
   if (stackVec.size() == 0)
   {
+    // Serial.println("stack empty");
     return;
   }
   else
   {
+    // Serial.println(stackCounter);
     stackCounter--;
 
     // visit(Node) physically
@@ -229,6 +267,12 @@ void modDFS(Node *startNode, std::vector<Node *> stackVec, Node **visitedList, i
     stackVec.pop_back();
 
     addRetracePath(nextNode, startNode, pathList, curDir);
+    Serial.print("------------------------------------Going to (");
+    Serial.print(nextNode->row);
+    Serial.print(",");
+    Serial.print(nextNode->col);
+    Serial.print(")");
+    Serial.println("");
     modDFS(nextNode, stackVec, visitedList, visitedCounter, stackCounter, pathList, curDir);
   }
 }

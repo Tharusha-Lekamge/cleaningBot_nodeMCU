@@ -12,6 +12,7 @@ struct Node
 
   // For path retracing in DFS algorithm
   Node *parent;
+  bool inStack = false;
   bool visited = false;
 
   int col;

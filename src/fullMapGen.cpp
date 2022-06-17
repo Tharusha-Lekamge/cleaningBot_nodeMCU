@@ -25,145 +25,183 @@ void FullMapGen::updateMap_arr(int *currentPos_arr, int (*relMap_arr)[11])
     }
 }
 
-void FullMapGen::updateMap_arr(int *currentPos_arr, int curDir)
-{
-    Sharp sharpUpdate;
-    Ultrasonic leftUltrasonic(13, 12);
-    Ultrasonic rightUltrasonic(3, 15);
+// void FullMapGen::updateMap_arr(int *currentPos_arr, int curDir)
+// {
+//     Sharp sharpUpdate;
+//     Ultrasonic leftUltrasonic(13, 12);
+//     Ultrasonic rightUltrasonic(3, 15);
 
-    int currentRow = currentPos_arr[0];
-    int currentCol = currentPos_arr[1];
+//     int currentRow = currentPos_arr[0];
+//     int currentCol = currentPos_arr[1];
 
-    switch (curDir)
-    {
-    case NORTH:
-        // sharp pointing to rows-1
-        if (sharpUpdate.isNextBlockObstacle())
-        {
-            this->fullMap_arr[currentRow - 1][currentCol] = 2;
-        }
-        if (leftUltrasonic.isNextBlockObstacle())
-        {
-            this->fullMap_arr[currentRow][currentCol - 1] = 2;
-        }
-        if (rightUltrasonic.isNextBlockObstacle())
-        {
-            this->fullMap_arr[currentRow][currentCol + 1] = 2;
-        }
-    case EAST:
-        // sharp pointing to cols+1
-        if (sharpUpdate.isNextBlockObstacle())
-        {
-            this->fullMap_arr[currentRow][currentCol + 1] = 2;
-        }
-        if (leftUltrasonic.isNextBlockObstacle())
-        {
-            this->fullMap_arr[currentRow - 1][currentCol] = 2;
-        }
-        if (rightUltrasonic.isNextBlockObstacle())
-        {
-            this->fullMap_arr[currentRow + 1][currentCol] = 2;
-        }
-    case SOUTH:
-        // sharp pointing to rows+1
-        if (sharpUpdate.isNextBlockObstacle())
-        {
-            this->fullMap_arr[currentRow + 1][currentCol] = 2;
-        }
-        if (leftUltrasonic.isNextBlockObstacle())
-        {
-            this->fullMap_arr[currentRow][currentCol + 1] = 2;
-        }
-        if (rightUltrasonic.isNextBlockObstacle())
-        {
-            this->fullMap_arr[currentRow][currentCol - 1] = 2;
-        }
-    case WEST:
-        // sharp pointing to cols-1
-        if (sharpUpdate.isNextBlockObstacle())
-        {
-            this->fullMap_arr[currentRow][currentCol - 1] = 2;
-        }
-        if (leftUltrasonic.isNextBlockObstacle())
-        {
-            this->fullMap_arr[currentRow + 1][currentCol] = 2;
-        }
-        if (rightUltrasonic.isNextBlockObstacle())
-        {
-            this->fullMap_arr[currentRow - 1][currentCol] = 2;
-        }
-    }
-}
+//     switch (curDir)
+//     {
+//     case NORTH:
+//         // sharp pointing to rows-1
+//         if (sharpRead)
+//         {
+//             this->fullMap_arr[currentRow - 1][currentCol] = 2;
+//         }
+//         if (leftRead)
+//         {
+//             this->fullMap_arr[currentRow][currentCol - 1] = 2;
+//         }
+//         if (rightRead)
+//         {
+//             this->fullMap_arr[currentRow][currentCol + 1] = 2;
+//         }
+//     case EAST:
+//         // sharp pointing to cols+1
+//         if (sharpRead)
+//         {
+//             this->fullMap_arr[currentRow][currentCol + 1] = 2;
+//         }
+//         if (leftRead)
+//         {
+//             this->fullMap_arr[currentRow - 1][currentCol] = 2;
+//         }
+//         if (rightRead)
+//         {
+//             this->fullMap_arr[currentRow + 1][currentCol] = 2;
+//         }
+//     case SOUTH:
+//         // sharp pointing to rows+1
+//         if (sharpRead)
+//         {
+//             this->fullMap_arr[currentRow + 1][currentCol] = 2;
+//         }
+//         if (leftRead)
+//         {
+//             this->fullMap_arr[currentRow][currentCol + 1] = 2;
+//         }
+//         if (rightRead)
+//         {
+//             this->fullMap_arr[currentRow][currentCol - 1] = 2;
+//         }
+//     case WEST:
+//         // sharp pointing to cols-1
+//         if (sharpRead)
+//         {
+//             this->fullMap_arr[currentRow][currentCol - 1] = 2;
+//         }
+//         if (leftRead)
+//         {
+//             this->fullMap_arr[currentRow + 1][currentCol] = 2;
+//         }
+//         if (rightRead)
+//         {
+//             this->fullMap_arr[currentRow - 1][currentCol] = 2;
+//         }
+//     }
+// }
 
 void FullMapGen::updateNodeMap(Node *curNode, int *curDir, Node *obsNode)
 {
+    ESP.wdtFeed();
+    Serial.println("inside scanner");
     Sharp sharpUpdate;
     Ultrasonic leftUltrasonic(13, 12);
     Ultrasonic rightUltrasonic(3, 15);
+
+    bool sharpRead = sharpUpdate.isNextBlockObstacle();
+    bool leftRead = leftUltrasonic.isNextBlockObstacle();
+    bool rightRead = rightUltrasonic.isNextBlockObstacle();
 
     switch (*curDir)
     {
     case NORTH:
+        Serial.println("case north");
         // sharp pointing to rows-1
-        if (sharpUpdate.isNextBlockObstacle())
+        if (sharpRead)
         {
-            curNode->front = obsNode;
+            curNode->front->state = 2;
+            curNode->front->col = -3;
+            curNode->front->row = -3;
         }
-        if (leftUltrasonic.isNextBlockObstacle())
+        if (leftRead)
         {
-            curNode->left = obsNode;
+            curNode->left->state = 2;
+            curNode->left->col = -3;
+            curNode->left->row = -3;
         }
-        if (rightUltrasonic.isNextBlockObstacle())
+        if (rightRead)
         {
-            curNode->right = obsNode;
+            curNode->right->state = 2;
+            curNode->right->col = -3;
+            curNode->right->row = -3;
         }
         break;
     case EAST:
+        Serial.println("case east");
         // sharp pointing to cols+1
-        if (sharpUpdate.isNextBlockObstacle())
+        if (sharpRead)
         {
-            curNode->left = obsNode;
+            curNode->left->state = 2;
+            curNode->left->col = -3;
+            curNode->left->row = -3;
         }
-        if (leftUltrasonic.isNextBlockObstacle())
+        if (leftRead)
         {
-            curNode->front = obsNode;
+            curNode->front->state = 2;
+            curNode->front->col = -3;
+            curNode->front->row = -3;
         }
-        if (rightUltrasonic.isNextBlockObstacle())
+        if (rightRead)
         {
-            curNode->back = obsNode;
+            curNode->back->state = 2;
+            curNode->back->col = -3;
+            curNode->back->row = -3;
         }
         break;
     case SOUTH:
+        Serial.println("case south");
         // sharp pointing to rows+1
-        if (sharpUpdate.isNextBlockObstacle())
+        if (sharpRead)
         {
-            curNode->back = obsNode;
+            Serial.println("front obs");
+            curNode->back->state = 2;
+            curNode->back->col = -3;
+            curNode->back->row = -3;
         }
-        if (leftUltrasonic.isNextBlockObstacle())
+        if (leftRead)
         {
-            curNode->right = obsNode;
+            Serial.println("left obs");
+            curNode->right->state = 2;
+            curNode->right->col = -3;
+            curNode->right->row = -3;
         }
-        if (rightUltrasonic.isNextBlockObstacle())
+        if (rightRead)
         {
-            curNode->left = obsNode;
+            Serial.println("right obs");
+            curNode->left->state = 2;
+            curNode->left->col = -3;
+            curNode->left->row = -3;
         }
         break;
     case WEST:
+        Serial.println("case west");
         // sharp pointing to cols-1
-        if (sharpUpdate.isNextBlockObstacle())
+        if (sharpRead)
         {
-            curNode->left = obsNode;
+            curNode->left->state = 2;
+            curNode->left->col = -3;
+            curNode->left->row = -3;
         }
-        if (leftUltrasonic.isNextBlockObstacle())
+        if (leftRead)
         {
-            curNode->back = obsNode;
+            curNode->back->state = 2;
+            curNode->back->col = -3;
+            curNode->back->row = -3;
         }
-        if (rightUltrasonic.isNextBlockObstacle())
+        if (rightRead)
         {
-            curNode->front = obsNode;
+            curNode->front->state = 2;
+            curNode->front->col = -3;
+            curNode->front->row = -3;
         }
         break;
     default:
+        Serial.println("case fucked");
         break;
     }
 }

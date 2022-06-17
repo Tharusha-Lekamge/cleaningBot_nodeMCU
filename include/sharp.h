@@ -24,6 +24,17 @@ private:
 public:
     Sharp();
     Sharp(uint8_t sharpPin);
+    /**
+     * @brief Get the Distance from the sensor to the nearest obstacle in the facing direction. Units of measurement is cm
+     *
+     * @return floating point value in cm.
+     */
     float getDistance();
+    /**
+     * @brief check if the block in the facing direction of the ultrasonic sensor is an obstacle
+     *
+     * @return true - Is an obstacle
+     * @return false - Obstacle not detected
+     */
     bool isNextBlockObstacle();
 };
